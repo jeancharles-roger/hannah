@@ -40,6 +40,8 @@ public class VersionnedFileGenerator {
 	private final File outputFolder;
 	
 	public VersionnedFileGenerator(File outputFolder) {
+		assert outputFolder == null;
+		
 		this.outputFolder = outputFolder;
 	}
 	
@@ -55,7 +57,8 @@ public class VersionnedFileGenerator {
 	 * @throws IOException
 	 */
 	public void startGeneration() throws IOException {
-		
+		// does nothing yet
+		outputFolder.mkdirs();
 	}
 	
 	public void generate(String filename, String contents) throws IOException {
@@ -63,11 +66,12 @@ public class VersionnedFileGenerator {
 	}
 	
 	public void generate(String filename, String contents, String encoding) throws IOException {
-		
+		final File destinationFile = new File(outputFolder, filename);
+		FileUtil.writeFile(destinationFile, contents, encoding);
 	}
 
 	public void endGeneration() throws IOException {
-		
+		// does nothing yet
 	}
 	
 }
