@@ -1,24 +1,31 @@
+/* *********************************************************************
+ *  This file is part of Hannah.
+ *
+ *  Hannah is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Hannah is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Hannah.  If not, see <http://www.gnu.org/licenses/>.
+ * ******************************************************************* */
+
 package org.openflexo.hannah;
 
 import java.io.File;
 import java.util.List;
 
 /**
- * <p> A {@link Merger} allows to merge new contents into files.
- * @author Jean-Charles Roger
+ * @author Jean-Charles Roger 
  *
  */
 public class Merger {
 
-	/**
-	 * <p>Merges a file with the new contents for this file. If the destination
-	 * file already exist it may ask for </p>
-	 * 
-	 * @param destinationFile  destination file for new contents.
-	 * @param contents new contents.
-	 * @param encoding encoding to use.
-	 * @throws Exception
-	 */
 	public void merge(File destinationFile, String contents, String encoding) throws Exception {
 		
 	}
