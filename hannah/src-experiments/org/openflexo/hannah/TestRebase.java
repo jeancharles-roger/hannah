@@ -12,7 +12,6 @@ import org.eclipse.jgit.api.RebaseResult.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectInserter.Formatter;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.xid.basics.Basics;
@@ -114,7 +113,6 @@ public class TestRebase {
 		
 		if ( result.getStatus() == Status.STOPPED ) {
 			List<DiffEntry> diffs = git.diff().call();
-			Formatter f = new Formatter();
 			for ( DiffEntry entry : diffs ) {
 				System.out.println("- " + entry);
 			}
