@@ -53,12 +53,23 @@ public class VersionnedFileGenerator {
 	}
 	
 	/**
-	 * <p>Prepares a new generation cycle.</p>
+	 * <p>Prepares the next generation. It collects the modifications made 
+	 * since last generation. By default all modifications are kept and merged
+	 * with the next generation, but the callback allows to cancel 
+	 * modifications (for example if's pushed back to the model)..</p>
+	 * @param callback called for each user modification.
 	 * @throws IOException
 	 */
-	public void startGeneration() throws IOException {
+	public void prepare(ModificationHandler callback) throws IOException {
 		// does nothing yet
 		outputFolder.mkdirs();
+	}
+	
+	/**
+	 * <p>Starts a new generation cycle.</p>
+	 * @throws IOException
+	 */
+	public void start() throws IOException {
 	}
 	
 	public void generate(String filename, String contents) throws IOException {
@@ -70,8 +81,24 @@ public class VersionnedFileGenerator {
 		FileUtil.writeFile(destinationFile, contents, encoding);
 	}
 
-	public void endGeneration() throws IOException {
+	/**
+	 * <p>Ends the generation. It asks to resolve conflicts (if any). By 
+	 * default conflict are resolved using user modifications.</p>
+	 * @param callback
+	 * @throws IOException
+	 */
+	public void end(ConflictHandler callback) throws IOException {
 		// does nothing yet
+	}
+	
+	/**
+	 * <p>Closes the generation cycle. It merges accepted modification made by
+	 * the generation.</p>
+	 * 
+	 * @throws IOException
+	 */
+	public void close() throws IOException {
+		
 	}
 	
 }
