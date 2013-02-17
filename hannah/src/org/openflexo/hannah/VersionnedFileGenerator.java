@@ -60,22 +60,23 @@ public class VersionnedFileGenerator {
 	 * @param callback called for each user modification.
 	 * @throws IOException
 	 */
-	public void prepare(ModificationHandler callback) throws IOException {
+	public void start(ModificationHandler callback) throws IOException {
 		// does nothing yet
 		outputFolder.mkdirs();
-	}
-	
-	/**
-	 * <p>Starts a new generation cycle.</p>
-	 * @throws IOException
-	 */
-	public void start() throws IOException {
 	}
 	
 	public void generate(String filename, String contents) throws IOException {
 		generate(filename, contents, "UTF-8");
 	}
 	
+	/**
+	 * <p>Create file with given file name and contents. The filename is a
+	 * relative path 
+	 * @param filename
+	 * @param contents
+	 * @param encoding
+	 * @throws IOException
+	 */
 	public void generate(String filename, String contents, String encoding) throws IOException {
 		final File destinationFile = new File(outputFolder, filename);
 		FileUtil.writeFile(destinationFile, contents, encoding);
@@ -89,16 +90,6 @@ public class VersionnedFileGenerator {
 	 */
 	public void end(ConflictHandler callback) throws IOException {
 		// does nothing yet
-	}
-	
-	/**
-	 * <p>Closes the generation cycle. It merges accepted modification made by
-	 * the generation.</p>
-	 * 
-	 * @throws IOException
-	 */
-	public void close() throws IOException {
-		
 	}
 	
 }
