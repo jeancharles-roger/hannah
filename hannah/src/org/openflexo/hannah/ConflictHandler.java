@@ -29,7 +29,7 @@ public interface ConflictHandler {
 	/**
 	 * {@link ConflictHandler} that resolves conflicts using USER version.
 	 */
-	public final static ConflictHandler userResolution = new ConflictHandler() {
+	public final static ConflictHandler user = new ConflictHandler() {
 		
 		@Override
 		public void conflicts(List<Conflict> conflicts) {
@@ -42,7 +42,7 @@ public interface ConflictHandler {
 	/**
 	 * {@link ConflictHandler} that resolves conflicts using GENERATION version.
 	 */
-	public final static ConflictHandler generationResolution = new ConflictHandler() {
+	public final static ConflictHandler generation = new ConflictHandler() {
 		
 		@Override
 		public void conflicts(List<Conflict> conflicts) {

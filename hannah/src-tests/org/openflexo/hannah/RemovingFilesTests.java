@@ -22,18 +22,19 @@ public class RemovingFilesTests {
 		VersionnedFileGenerator generator = createGenerator("oneFile");
 
 		// generation one
-		generator.start(null);
+		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc");
 		generator.generate("file2.txt", "abc");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 
 		assertContents(generator, "file1.txt", "abc");
 		assertContents(generator, "file2.txt", "abc");
 		
 		// generation two
-		generator.start(null);
+		generator.start(TestUtil.noModification);
+		generator.start(ModificationHandler.accept);
 		generator.generate("file1.txt", "cba");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "cba");
 		assertDoesntExist(generator, "file2.txt");
@@ -44,20 +45,20 @@ public class RemovingFilesTests {
 		VersionnedFileGenerator generator = createGenerator("twoFiles");
 		
 		// generation one
-		generator.start(null);
+		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc");
 		generator.generate("file2.txt", "abc");
 		generator.generate("file3.txt", "abc");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc");
 		assertContents(generator, "file2.txt", "abc");
 		assertContents(generator, "file3.txt", "abc");
 		
 		// generation two
-		generator.start(null);
+		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "cba");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "cba");
 		assertDoesntExist(generator, "file2.txt");

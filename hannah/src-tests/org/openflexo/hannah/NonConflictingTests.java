@@ -18,15 +18,16 @@ public class NonConflictingTests {
 	@Test
 	public void testOneFile() throws IOException {
 		VersionnedFileGenerator generator = createGenerator("oneFile");
-		generator.start(null);
+		
+		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc");
 		
-		generator.start(null);
+		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "cba");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "cba");
 	}
@@ -35,16 +36,16 @@ public class NonConflictingTests {
 	public void testTwoFiles() throws IOException {
 		VersionnedFileGenerator generator = createGenerator("twoFiles");
 		
-		generator.start(null);
+		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc");
 		
-		generator.start(null);
+		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc");
 		generator.generate("file2.txt", "cba");
-		generator.end(null);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc");
 		assertContents(generator, "file2.txt", "cba");

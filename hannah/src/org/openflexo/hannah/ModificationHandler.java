@@ -25,4 +25,29 @@ public interface ModificationHandler {
 	 */
 	void modifications(List<Modification> modifications);
 	
+	/**
+	 * {@link ModificationHandler} that accepts all modifications.
+	 */
+	public static final ModificationHandler accept = new ModificationHandler() {
+		@Override
+		public void modifications(List<Modification> modifications) {
+			// not needed, the default is accepted, but still do it :).
+			for ( Modification modification : modifications ) {
+				modification.setAccepted(true);
+			}
+		}
+	};
+	
+	/**
+	 * {@link ModificationHandler} that rejects all modifications.
+	 */
+	public static final ModificationHandler reject = new ModificationHandler() {
+		@Override
+		public void modifications(List<Modification> modifications) {
+			for ( Modification modification : modifications ) {
+				modification.setAccepted(false);
+			}
+		}
+	};
+	
 }
