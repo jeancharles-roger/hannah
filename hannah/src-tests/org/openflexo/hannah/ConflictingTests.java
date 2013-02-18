@@ -23,7 +23,7 @@ public class ConflictingTests {
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
 		generator.end(ConflictHandler.userResolution);
 		
-		assertContents(generator, "file1.txt", "abc");
+		assertContents(generator, "file1.txt", "abc\ndef\nijk\n");
 		
 		writeFile(generator, "file1.txt", "abc\nddd\nijk\n");
 		assertContents(generator, "file1.txt", "abc\nddd\nijk\n");
@@ -42,7 +42,7 @@ public class ConflictingTests {
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
 		generator.end(ConflictHandler.generationResolution);
 		
-		assertContents(generator, "file1.txt", "abc");
+		assertContents(generator, "file1.txt", "abc\ndef\nijk\n");
 		
 		writeFile(generator, "file1.txt", "abc\nddd\nijk\n");
 		assertContents(generator, "file1.txt", "abc\nddd\nijk\n");
