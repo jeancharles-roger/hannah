@@ -1,0 +1,40 @@
+<project name="Cometa ModelGenerator" default="all" basedir="..">
+	<property name="lib.dir" location="/Users/charlie/Documents/dev/git/basics.git/dist-basics/jars"/>
+	
+	<property name="emf.dir" location="${lib.dir}/emf-2.8.1/"/>
+	<property name="emf.classpath" location="${emf.dir}/emf-2.8.1.jar"/>
+
+	<!--
+	<property name="basics.classpath" location="${lib.dir}/basics/basics.jar;${lib.dir}/basics/basics-tools.jar"/>
+	-->
+	<!-- Uses dev -->
+	<property name="basics.classpath" location="/Users/charlie/Documents/dev/git/basics.git/org.xid.basics/bin;/Users/charlie/Documents/dev/git/basics.git/BasicsTools/bin"/>
+	
+
+	<taskdef name="generator"
+	  classname="org.xid.generator.ModelGeneratorTask"
+	  classpath="${basics.classpath};${emf.classpath}"
+	/>
+	
+	<target name="generate" >
+		<generator
+		    source="${basedir}/model/Test_gen1.ecore"
+		    destination="${basedir}/src-gen1"
+			visitor="none"
+		/>
+		<generator
+		    source="${basedir}/model/Test_gen2.ecore"
+		    destination="${basedir}/src-gen2"
+			visitor="none"
+		/>
+		<generator
+		    source="${basedir}/model/Test_gen3.ecore"
+		    destination="${basedir}/src-gen3"
+			visitor="none"
+		/>
+
+	</target>
+
+	<target name="all" depends="generate" />
+</project>
+
