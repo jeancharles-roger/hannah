@@ -10,7 +10,6 @@ import java.util.List;
 
 public class TestUtil {
 
-	
 	public static void writeFile(VersionnedFileGenerator generator, String filename, String contents) throws IOException{
 		final File absoluteFile = new File(generator.getOutputFolder(), filename);
 		FileUtil.writeFile(absoluteFile, contents, "UTF-8");

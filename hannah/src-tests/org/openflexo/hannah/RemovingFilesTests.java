@@ -4,7 +4,6 @@ import static org.openflexo.hannah.TestUtil.assertContents;
 import static org.openflexo.hannah.TestUtil.assertDoesntExist;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.junit.Test;
 
@@ -13,12 +12,13 @@ public class RemovingFilesTests {
 	private File baseFolder = new File("tmp/removingFiles");
 	
 	private VersionnedFileGenerator createGenerator(String name) {
-		return new VersionnedFileGenerator(new File(baseFolder, name));
+		File outputFolder = new File(baseFolder, name);
+		FileUtil.delete(outputFolder);
+		return new VersionnedFileGenerator(outputFolder);
 	}
 	
-	
 	@Test
-	public void testOneFile() throws IOException {
+	public void testOneFile() throws Exception {
 		VersionnedFileGenerator generator = createGenerator("oneFile");
 
 		// generation one
@@ -32,7 +32,6 @@ public class RemovingFilesTests {
 		
 		// generation two
 		generator.start(TestUtil.noModification);
-		generator.start(ModificationHandler.accept);
 		generator.generate("file1.txt", "cba");
 		generator.end(TestUtil.noConflict);
 		
@@ -41,7 +40,7 @@ public class RemovingFilesTests {
 	}
 
 	@Test
-	public void testTwoFiles() throws IOException {
+	public void testTwoFiles() throws Exception {
 		VersionnedFileGenerator generator = createGenerator("twoFiles");
 		
 		// generation one

@@ -3,7 +3,6 @@ package org.openflexo.hannah;
 import static org.openflexo.hannah.TestUtil.assertContents;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.junit.Test;
 
@@ -12,11 +11,13 @@ public class NonConflictingTests {
 	private File baseFolder = new File("tmp/nonConflicting");
 	
 	private VersionnedFileGenerator createGenerator(String name) {
-		return new VersionnedFileGenerator(new File(baseFolder, name));
+		File outputFolder = new File(baseFolder, name);
+		FileUtil.delete(outputFolder);
+		return new VersionnedFileGenerator(outputFolder);
 	}
 	
 	@Test
-	public void testOneFile() throws IOException {
+	public void testOneFile() throws Exception {
 		VersionnedFileGenerator generator = createGenerator("oneFile");
 		
 		generator.start(TestUtil.noModification);
@@ -33,7 +34,7 @@ public class NonConflictingTests {
 	}
 
 	@Test
-	public void testTwoFiles() throws IOException {
+	public void testTwoFiles() throws Exception {
 		VersionnedFileGenerator generator = createGenerator("twoFiles");
 		
 		generator.start(TestUtil.noModification);
