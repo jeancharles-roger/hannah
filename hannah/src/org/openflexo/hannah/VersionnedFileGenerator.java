@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.RmCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -112,6 +113,7 @@ public class VersionnedFileGenerator {
 			git = Git.open(outputFolder);
 		}
 
+		// retrieves diffs
 		final List<DiffEntry> diffEntries = git.diff().call();
 		if ( diffEntries.size() > 0 ) {
 			// creates modifications and calls the handler.
@@ -120,7 +122,7 @@ public class VersionnedFileGenerator {
 				callback.modifications(modifications);
 			}
 			
-			// checks which modifications should be done
+			// checks which modifications should be committed
 			boolean somethingAccepted = false;
 			final AddCommand add = git.add();
 			for ( Modification modification : modifications ) {
@@ -136,7 +138,7 @@ public class VersionnedFileGenerator {
 				git.commit().setMessage("User modifications").call();
 			}
 			
-			// reverts un-commited diff
+			// reverts un-commited diffs
 			git.revert().call();
 			
 		}
@@ -183,9 +185,32 @@ public class VersionnedFileGenerator {
 
 		// checks if needs commit.
 		if ( status.isClean() == false ) {
-			git.add().addFilepattern(".").call();
+			// checks for files to add
+			boolean execute = false;
+			final AddCommand add = git.add();
+			for ( String filename : status.getModified() ) {
+				execute = true;
+				add.addFilepattern(filename);
+			}
+			
+			for ( String filename : status.getUntracked() ) {
+				execute = true;
+				add.addFilepattern(filename);
+			}
+			if ( execute ) add.call();
+
+			// checks for files to remove
+			execute = false;
+			final RmCommand rm = git.rm();
+			for ( String filename : status.getMissing() ) {
+				execute = true;
+				rm.addFilepattern(filename);
+			}
+			if ( execute ) rm.call();
+		
 			git.commit().setMessage("Generation").call();
 		}
+		
 		// checks out master branch
 		git.checkout().setName(MASTER).call();
 		
