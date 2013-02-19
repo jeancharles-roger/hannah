@@ -19,25 +19,42 @@ package org.openflexo.hannah;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.merge.MergeStrategy;
 
 /**
  * <p>The {@link VersionnedFileGenerator} allows to generate files using 
- * versionning and user modification supports. It uses Git as back-end for 
+ * versioning and user modification supports. It uses Git as back-end for 
  * merges and diffs.</p>
  * 
  * TODO describe the life cycle.
- * TODO add API and callbacks for conflict handling
+ * TODO add API for modification and conflict descriptions
  * 
  * @author Jean-Charles Roger 
  *
  */
 public class VersionnedFileGenerator {
 
+	private final static String GIT_REPOSITORY_FILENAME = ".git";
+	
+	private final static String GENERATION = "generation";
+	private final static String MASTER = "master";
+	
+	private final List<String> NOT_DELETED_FILES = Arrays.asList(GIT_REPOSITORY_FILENAME, "Dummy");
+	
 	/** 
 	 * <p>Base output folder for generator. All filename given for generation
 	 * are prefixed by output folder.</p>
 	 */
 	private final File outputFolder;
+	
+	private Git git;
 	
 	public VersionnedFileGenerator(File outputFolder) {
 		assert outputFolder == null;
@@ -57,12 +74,60 @@ public class VersionnedFileGenerator {
 	 * since last generation. By default all modifications are kept and merged
 	 * with the next generation, but the callback allows to cancel 
 	 * modifications (for example if's pushed back to the model)..</p>
+	 * 
 	 * @param callback called for each user modification.
-	 * @throws IOException
+	 * 
+	 * @throws IOException for any file manipulation gone wrong.
+	 * @throws GitAPIException  if Git can't manipulate the repository.
 	 */
-	public void start(ModificationHandler callback) throws IOException {
-		// does nothing yet
-		outputFolder.mkdirs();
+	public void start(ModificationHandler callback) throws IOException, GitAPIException {
+		// creates output folder if needed.
+		if ( outputFolder.exists() == false ) {
+			outputFolder.mkdirs();
+		}
+		
+		// checks that output folder is a folder and accessible.
+		if ( outputFolder.isDirectory() == false || outputFolder.canRead() == false || outputFolder.canWrite() == false ) {
+			throw new IOException("Folder '"+ outputFolder +"' isn't accessible.");
+		}
+
+		// is the folder already a generation folder, checks the git file.
+		if ( new File(outputFolder, GIT_REPOSITORY_FILENAME).exists() == false ) {
+			// no repository, creates the repository.
+			git = Git.init().setDirectory(outputFolder).setBare(false).call();
+			
+			// creates the master branch
+			FileUtil.writeFile(new File(outputFolder, "Dummy"), "For master branch creation", "UTF-8");
+			git.add().addFilepattern("Dummy").call();
+			git.commit().setMessage("Creates master branch.").call();
+
+			// create the generation branch
+			git.branchCreate().setName(GENERATION).call();
+			
+		} else {
+			// repository exists, opens it.
+			git = Git.open(outputFolder);
+		}
+
+		if ( git.diff().call().size() > 0 ) {
+			// commits user modifications (without discrimination)
+			git.add().addFilepattern(".").call();
+			git.rm().addFilepattern(".").call();
+			git.commit().setMessage("User modifications").call();
+		}
+		
+		// checkouts generation branch
+		git.checkout().setName(GENERATION).call();
+		
+		// clear files before new generation
+		final File[] children = outputFolder.listFiles();
+		if ( children != null ) { 
+			for ( File child : children ) {
+				if ( NOT_DELETED_FILES.contains(child.getName()) == false ) {
+					FileUtil.delete(child);
+				}
+			}
+		}
 	}
 	
 	public void generate(String filename, String contents) throws IOException {
@@ -88,8 +153,20 @@ public class VersionnedFileGenerator {
 	 * @param callback
 	 * @throws IOException
 	 */
-	public void end(ConflictHandler callback) throws IOException {
-		// does nothing yet
+	public void end(ConflictHandler callback) throws IOException, GitAPIException {
+		final Status status = git.status().call();
+
+		// checks if needs commit.
+		if ( status.isClean() == false ) {
+			git.add().addFilepattern(".").call();
+			git.commit().setMessage("Generation").call();
+		}
+		// checks out master branch
+		git.checkout().setName(MASTER).call();
+		
+		// merges generation branch with master (resolving conflict with USER).
+		final Ref generationHead = git.getRepository().getRef(GENERATION);
+		git.merge().include(generationHead).setStrategy(MergeStrategy.OURS).call();
 	}
 	
 }

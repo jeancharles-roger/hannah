@@ -76,4 +76,23 @@ public class FileUtil {
 		return contentsIndex > contentsLength;
 	}
 	
+	/**
+	 * <p>Recursively deletes given file or folder.</p>
+	 * @param file to delete, also works with folders.
+	 */
+	public static void delete(File file) {
+		if ( file.isDirectory() ) {
+			// removes members.
+			final File[] children = file.listFiles();
+			if ( children != null ) {
+				for ( File member : children ) {
+					delete(member);
+				}
+			}
+		}
+		// delete file
+		file.delete();
+	}
+	
+
 }
