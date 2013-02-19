@@ -8,15 +8,15 @@ It provides the merge of user modification inside generated code using a Git rep
 Version
 =======
 
-Hannah is under development and is mostly just an idea with successful experiments using Git.
-It will need work before being functional.
+Hannah is in early development state. Basics functionalities are present but it can't be distributed yet.w
 
 TODO
 ====
 
-* Creates a complete set of tests.
-* Add API and callbacks for conflict handling.
-* Experiment on file suppressed by generation.
+* Add user modification description isolated from Git DiffEntry.
+* Add conflict description isolated from Git DiffEntry/Conflict.
+* Add support for conflict resolution
+* Add tests for inter-active conflict resolution
 * Check how the Git repository can be transported by another SCM manager.
 
 Licence
