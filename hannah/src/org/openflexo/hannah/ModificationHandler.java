@@ -33,7 +33,7 @@ public interface ModificationHandler {
 		public void modifications(List<Modification> modifications) {
 			// not needed, the default is accepted, but still do it :).
 			for ( Modification modification : modifications ) {
-				modification.setAccepted(true);
+				modification.setAccept(true);
 			}
 		}
 	};
@@ -45,7 +45,7 @@ public interface ModificationHandler {
 		@Override
 		public void modifications(List<Modification> modifications) {
 			for ( Modification modification : modifications ) {
-				modification.setAccepted(false);
+				modification.setAccept(false);
 			}
 		}
 	};

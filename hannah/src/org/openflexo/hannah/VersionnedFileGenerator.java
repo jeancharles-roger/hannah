@@ -19,12 +19,15 @@ package org.openflexo.hannah;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.merge.MergeStrategy;
 
@@ -109,11 +112,33 @@ public class VersionnedFileGenerator {
 			git = Git.open(outputFolder);
 		}
 
-		if ( git.diff().call().size() > 0 ) {
-			// commits user modifications (without discrimination)
-			git.add().addFilepattern(".").call();
-			git.rm().addFilepattern(".").call();
-			git.commit().setMessage("User modifications").call();
+		final List<DiffEntry> diffEntries = git.diff().call();
+		if ( diffEntries.size() > 0 ) {
+			// creates modifications and calls the handler.
+			final List<Modification> modifications = createModificationList(diffEntries);
+			if ( callback != null ) {
+				callback.modifications(modifications);
+			}
+			
+			// checks which modifications should be done
+			boolean somethingAccepted = false;
+			final AddCommand add = git.add();
+			for ( Modification modification : modifications ) {
+				if ( modification.isAccept() ) {
+					somethingAccepted = true;
+					add.addFilepattern(modification.getDiff().getNewPath());
+				}
+			}
+			
+			// calls add on accepted modifications
+			if ( somethingAccepted ) {
+				add.call();
+				git.commit().setMessage("User modifications").call();
+			}
+			
+			// reverts un-commited diff
+			git.revert().call();
+			
 		}
 		
 		// checkouts generation branch
@@ -167,6 +192,18 @@ public class VersionnedFileGenerator {
 		// merges generation branch with master (resolving conflict with USER).
 		final Ref generationHead = git.getRepository().getRef(GENERATION);
 		git.merge().include(generationHead).setStrategy(MergeStrategy.OURS).call();
+	}
+	
+	private List<Modification> createModificationList(List<DiffEntry> diffs) {
+		List<Modification> modifications = new ArrayList<>(diffs.size());
+		for ( DiffEntry diff : diffs) {
+			modifications.add(createModification(diff));
+		}
+		return modifications;
+	}
+	
+	private Modification createModification(DiffEntry diff) {
+		return new Modification.Stub(diff);
 	}
 	
 }
