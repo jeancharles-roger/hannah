@@ -13,11 +13,18 @@ Hannah is in early development state. Basics functionalities are present but it 
 TODO
 ====
 
-* Add user modification description isolated from Git DiffEntry.
-* Add conflict description isolated from Git DiffEntry/Conflict.
-* Add support for conflict resolution
-* Add tests for inter-active conflict resolution
+* Add user modification description (maybe org.eclipse.jgit.diff.Edit is a good choice).
+* Add conflict description (maybe org.eclipse.jgit.diff.Edit is a good choice).
+* Add support for inter-active conflict resolution.
+* Add tests for inter-active conflict resolution.
 * Check how the Git repository can be transported by another SCM manager.
+
+Getting Started
+===============
+
+
+
+
 
 Licence
 =======
