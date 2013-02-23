@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Basics" default="all">
+	<property file="build.properties" />
+	<delete dir="${destination}" />
+	<mkdir dir="${destination}" />
+	<mkdir dir="${destination}/jars" />
+
+	<target name="all" depends="jar" />
+	
+	<target name="version.txt" >
+		<echo file="${destination}/version.txt">${version}</echo>
+	</target>
+	
+	<target name="jar" depends="version.txt" >
+		<jar 
+			destfile="${destination}/jars/hannah-${version}.jar"
+			manifest="${template_dir}/jar/MANIFEST-hannah.MF"
+		>
+			<fileset file="${destination}/version.txt"/>
+			<fileset dir="../../hannah/bin">
+				<include name="**/*" />
+			</fileset>
+			<fileset dir="../../hannah/src">
+				<include name="**/*" />
+			</fileset>
+		</jar>
+	</target>
+	
+</project>
