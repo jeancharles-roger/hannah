@@ -25,12 +25,20 @@ import java.util.List;
 
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.MergeResult.MergeStatus;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.RmCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheCheckout;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.merge.MergeStrategy;
+import org.openflexo.hannah.Conflict.Resolution;
 
 /**
  * <p>The {@link VersionnedFileGenerator} allows to generate files using 
@@ -177,14 +185,15 @@ public class VersionnedFileGenerator {
 	/**
 	 * <p>Ends the generation. It asks to resolve conflicts (if any). By 
 	 * default conflict are resolved using user modifications.</p>
-	 * @param callback
+	 * @param resolution conflict resolution mode.
 	 * @throws IOException
 	 */
-	public void end(ConflictHandler callback) throws IOException, GitAPIException {
+	public void end(Resolution resolution) throws IOException, GitAPIException {
 		final Status status = git.status().call();
 
 		// checks if needs commit.
 		if ( status.isClean() == false ) {
+			
 			// checks for files to add
 			boolean execute = false;
 			final AddCommand add = git.add();
@@ -215,8 +224,40 @@ public class VersionnedFileGenerator {
 		git.checkout().setName(MASTER).call();
 		
 		// merges generation branch with master (resolving conflict with USER).
-		final Ref generationHead = git.getRepository().getRef(GENERATION);
-		git.merge().include(generationHead).setStrategy(MergeStrategy.OURS).call();
+		final Repository repo = git.getRepository();
+		final Ref generationHead = repo.getRef(GENERATION);
+		final MergeResult merge = git.merge().include(generationHead).setStrategy(MergeStrategy.RESOLVE).call();
+		
+		// in case of conflicts, uses the resolution mode to choose the outcome
+		if ( merge.getMergeStatus() == MergeStatus.CONFLICTING ) {
+			// prepares the reset command
+			final ResetCommand reset = git.reset();
+			
+			// for all conflicting entry in the cache, select the correct entry. 
+			final int selectedStage = resolution == Resolution.USER ? DirCacheEntry.STAGE_2 : DirCacheEntry.STAGE_3;
+			final DirCache cache = repo.lockDirCache();
+			for ( int i=0; i<cache.getEntryCount(); i++ ) {
+				final DirCacheEntry entry = cache.getEntry(i);
+				if ( entry.getStage() == selectedStage ) {
+					final String pathString = entry.getPathString();
+					
+					// if entry is the correct resolution (it's a conflict) checks it out. 
+					final File file = new File(repo.getWorkTree(), pathString);
+					DirCacheCheckout.checkoutEntry(repo, file, entry);
+					
+					// add path to reset command
+					reset.addPath(pathString);
+					
+				}
+			}
+			cache.unlock();
+
+			// resets repository state to allows commit.
+			reset.call();
+			// commit resolutions
+			git.commit().setMessage("User/Generation merge conflicts resolutions.").call();
+		}	
+		
 	}
 	
 	private List<Modification> createModificationList(List<DiffEntry> diffs) {
@@ -230,5 +271,4 @@ public class VersionnedFileGenerator {
 	private Modification createModification(DiffEntry diff) {
 		return new Modification.Stub(diff);
 	}
-	
 }
