@@ -26,23 +26,23 @@ import java.util.List;
 
 public class TestUtil {
 
-	public static void writeFile(VersionnedFileGenerator generator, String filename, String contents) throws IOException{
+	public static void writeFile(IterativeFileGenerator generator, String filename, String contents) throws IOException{
 		final File absoluteFile = new File(generator.getOutputFolder(), filename);
 		FileUtil.writeFile(absoluteFile, contents, "UTF-8");
 	}
 	
-	public static void assertContents(VersionnedFileGenerator generator, String filename, String contents) throws IOException{
+	public static void assertContents(IterativeFileGenerator generator, String filename, String contents) throws IOException{
 		final File absoluteFile = new File(generator.getOutputFolder(), filename);
 		boolean equals = FileUtil.checkContents(absoluteFile, contents, "UTF-8");
 		assertTrue("File '"+ filename +"' doesn't contains '"+ contents +"'.", equals);
 	}
 
-	public static void assertExists(VersionnedFileGenerator generator, String filename) throws IOException{
+	public static void assertExists(IterativeFileGenerator generator, String filename) throws IOException{
 		final File completeFile = new File(generator.getOutputFolder(), filename);
 		assertTrue("File '"+ filename +"' should exist.", completeFile.exists());
 	}
 
-	public static void assertDoesntExist(VersionnedFileGenerator generator, String filename) throws IOException{
+	public static void assertDoesntExist(IterativeFileGenerator generator, String filename) throws IOException{
 		final File completeFile = new File(generator.getOutputFolder(), filename);
 		assertFalse("File '"+ filename +"' should not exist.", completeFile.exists());
 	}

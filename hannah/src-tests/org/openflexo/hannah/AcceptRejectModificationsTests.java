@@ -28,15 +28,15 @@ public class AcceptRejectModificationsTests {
 
 	private File baseFolder = new File("tmp/acceptReject");
 	
-	private VersionnedFileGenerator createGenerator(String name) {
+	private IterativeFileGenerator createGenerator(String name) {
 		File outputFolder = new File(baseFolder, name);
 		FileUtil.delete(outputFolder);
-		return new VersionnedFileGenerator(outputFolder);
+		return new IterativeFileGenerator(outputFolder);
 	}
 	
 	@Test
 	public void testAccept() throws Exception {
-		VersionnedFileGenerator generator = createGenerator("accept");
+		IterativeFileGenerator generator = createGenerator("accept");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
 		generator.end(Resolution.USER);
@@ -55,7 +55,7 @@ public class AcceptRejectModificationsTests {
 
 	@Test
 	public void testReject() throws Exception {
-		VersionnedFileGenerator generator = createGenerator("reject");
+		IterativeFileGenerator generator = createGenerator("reject");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
 		generator.end(Resolution.USER);

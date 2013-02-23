@@ -28,15 +28,15 @@ public class RemovingFilesTests {
 
 	private File baseFolder = new File("tmp/removingFiles");
 	
-	private VersionnedFileGenerator createGenerator(String name) {
+	private IterativeFileGenerator createGenerator(String name) {
 		File outputFolder = new File(baseFolder, name);
 		FileUtil.delete(outputFolder);
-		return new VersionnedFileGenerator(outputFolder);
+		return new IterativeFileGenerator(outputFolder);
 	}
 	
 	@Test
 	public void testOneFile() throws Exception {
-		VersionnedFileGenerator generator = createGenerator("oneFile");
+		IterativeFileGenerator generator = createGenerator("oneFile");
 
 		// generation one
 		generator.start(TestUtil.noModification);
@@ -58,7 +58,7 @@ public class RemovingFilesTests {
 
 	@Test
 	public void testTwoFiles() throws Exception {
-		VersionnedFileGenerator generator = createGenerator("twoFiles");
+		IterativeFileGenerator generator = createGenerator("twoFiles");
 		
 		// generation one
 		generator.start(TestUtil.noModification);

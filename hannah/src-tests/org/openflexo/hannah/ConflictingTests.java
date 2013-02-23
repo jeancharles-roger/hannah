@@ -28,15 +28,15 @@ public class ConflictingTests {
 
 	private File baseFolder = new File("tmp/conflicting");
 	
-	private VersionnedFileGenerator createGenerator(String name) {
+	private IterativeFileGenerator createGenerator(String name) {
 		File outputFolder = new File(baseFolder, name);
 		FileUtil.delete(outputFolder);
-		return new VersionnedFileGenerator(outputFolder);
+		return new IterativeFileGenerator(outputFolder);
 	}
 	
 	@Test
 	public void testOneFile1() throws Exception {
-		VersionnedFileGenerator generator = createGenerator("oneFile1");
+		IterativeFileGenerator generator = createGenerator("oneFile1");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
 		generator.end(Resolution.USER);
@@ -55,7 +55,7 @@ public class ConflictingTests {
 
 	@Test
 	public void testOneFile2() throws Exception {
-		VersionnedFileGenerator generator = createGenerator("oneFile2");
+		IterativeFileGenerator generator = createGenerator("oneFile2");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
 		generator.end(Resolution.GENERATION);
@@ -75,7 +75,7 @@ public class ConflictingTests {
 
 	@Test
 	public void testOneFile3() throws Exception {
-		VersionnedFileGenerator generator = createGenerator("oneFile3");
+		IterativeFileGenerator generator = createGenerator("oneFile3");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\nlmn\nopq\nrst\nuvw\n");
 		generator.end(Resolution.USER);

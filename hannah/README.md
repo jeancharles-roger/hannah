@@ -18,13 +18,13 @@ TODO
 * Add support for inter-active conflict resolution.
 * Add tests for inter-active conflict resolution.
 * Check how the Git repository can be transported by another SCM manager.
+* Tests the generator on a real generator and checks how it supports modifications on lots of versions.
 
 Getting Started
 ===============
 
-
-
-
+The entry point of Hannah library is the class 'org.openflexo.hannah.IterativeFileGenerator'. 
+It's use is described within the class JavaDoc.
 
 Licence
 =======

@@ -41,9 +41,26 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.openflexo.hannah.Conflict.Resolution;
 
 /**
- * <p>The {@link VersionnedFileGenerator} allows to generate files using 
- * versioning and user modification supports. It uses Git as back-end for 
- * merges and diffs.</p>
+ * <p>The {@link IterativeFileGenerator} allows to generate files using 
+ * versions and user modification supports. It uses Git as back-end for 
+ * merges and diffs. It preserves user modifications all along the generation
+ * cycles.</p>
+ * 
+ * <p>An {@link IterativeFileGenerator} is really to use. When you need to 
+ * generate code, just create an {@link IterativeFileGenerator} on the
+ * destination folder. Then prepares the generation with the start method. All
+ * generated file can be generated using the generate methods but it's not
+ * required. At the end close the cycle with the end method.</p>
+ * 
+ * <p>It will look like this:
+ * <pre><code>
+ * IterativeFileGenerator generator = createGenerator("oneFile");
+ * generator.start(TestUtil.noModification);
+ * generator.generate("file1.txt", "abc");
+ * generator.generate("file2.txt", "abc");
+ * generator.end(Resolution.USER);
+ * </code></pre>
+ * </p>
  * 
  * TODO describe the life cycle.
  * TODO add API for modification and conflict descriptions
@@ -51,7 +68,7 @@ import org.openflexo.hannah.Conflict.Resolution;
  * @author Jean-Charles Roger 
  *
  */
-public class VersionnedFileGenerator {
+public class IterativeFileGenerator {
 
 	private final static String GIT_REPOSITORY_FILENAME = ".git";
 	
@@ -68,7 +85,7 @@ public class VersionnedFileGenerator {
 	
 	private Git git;
 	
-	public VersionnedFileGenerator(File outputFolder) {
+	public IterativeFileGenerator(File outputFolder) {
 		assert outputFolder == null;
 		
 		this.outputFolder = outputFolder;
