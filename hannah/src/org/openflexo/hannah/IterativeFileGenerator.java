@@ -71,11 +71,13 @@ import org.openflexo.hannah.Conflict.Resolution;
 public class IterativeFileGenerator {
 
 	private final static String GIT_REPOSITORY_FILENAME = ".git";
+	private final static String HANNAH_REPOSITORY_FILENAME = ".hannah";
+	private final static String DUMMY_FILENAME = ".dummy";
 	
 	private final static String GENERATION = "generation";
 	private final static String MASTER = "master";
 	
-	private final List<String> NOT_DELETED_FILES = Arrays.asList(GIT_REPOSITORY_FILENAME, "Dummy");
+	private final List<String> NOT_DELETED_FILES = Arrays.asList(GIT_REPOSITORY_FILENAME, DUMMY_FILENAME);
 	
 	/** 
 	 * <p>Base output folder for generator. All filename given for generation
@@ -83,12 +85,18 @@ public class IterativeFileGenerator {
 	 */
 	private final File outputFolder;
 	
+	private final File hannahFolder;
+
+	private final File gitFolder;
+	
 	private Git git;
 	
 	public IterativeFileGenerator(File outputFolder) {
 		assert outputFolder == null;
 		
 		this.outputFolder = outputFolder;
+		this.hannahFolder = new File(outputFolder, HANNAH_REPOSITORY_FILENAME);
+		this.gitFolder = new File(outputFolder, GIT_REPOSITORY_FILENAME);
 	}
 	
 	/**
@@ -120,21 +128,31 @@ public class IterativeFileGenerator {
 			throw new IOException("Folder '"+ outputFolder +"' isn't accessible.");
 		}
 
+		if ( gitFolder.exists() ) {
+			throw new IOException("Output folder is already a Git working copy.");
+		}
+		
 		// is the folder already a generation folder, checks the git file.
-		if ( new File(outputFolder, GIT_REPOSITORY_FILENAME).exists() == false ) {
+		if ( hannahFolder.exists() == false ) {
 			// no repository, creates the repository.
 			git = Git.init().setDirectory(outputFolder).setBare(false).call();
 			
-			// creates the master branch
-			FileUtil.writeFile(new File(outputFolder, "Dummy"), "For master branch creation", "UTF-8");
-			git.add().addFilepattern("Dummy").call();
-			git.commit().setMessage("Creates master branch.").call();
+			final String[] children = outputFolder.list();
+			if ( children == null || children.length <= 1 ) {
+				// if folder only contains '.git' creates a dummy file.
+				FileUtil.writeFile(new File(outputFolder, DUMMY_FILENAME), "For master branch creation", "UTF-8");
+			}
 
+			// creates the master branch
+			git.add().addFilepattern(".").call();
+			git.commit().setMessage("Creates master branch.").call();
+			
 			// create the generation branch
 			git.branchCreate().setName(GENERATION).call();
 			
 		} else {
-			// repository exists, opens it.
+			// repository exists, renames it and opens it.
+			hannahFolder.renameTo(gitFolder);
 			git = Git.open(outputFolder);
 		}
 
@@ -273,8 +291,12 @@ public class IterativeFileGenerator {
 			reset.call();
 			// commit resolutions
 			git.commit().setMessage("User/Generation merge conflicts resolutions.").call();
+			
+			
 		}	
 		
+		// renames git repository to hannah
+		gitFolder.renameTo(hannahFolder);
 	}
 	
 	private List<Modification> createModificationList(List<DiffEntry> diffs) {
