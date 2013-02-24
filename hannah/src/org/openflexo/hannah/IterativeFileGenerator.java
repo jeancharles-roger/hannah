@@ -278,7 +278,7 @@ public class IterativeFileGenerator {
 	}
 	
 	private List<Modification> createModificationList(List<DiffEntry> diffs) {
-		List<Modification> modifications = new ArrayList<>(diffs.size());
+		List<Modification> modifications = new ArrayList<Modification>(diffs.size());
 		for ( DiffEntry diff : diffs) {
 			modifications.add(createModification(diff));
 		}
