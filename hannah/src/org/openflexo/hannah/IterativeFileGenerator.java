@@ -62,7 +62,6 @@ import org.openflexo.hannah.Conflict.Resolution;
  * </code></pre>
  * </p>
  * 
- * TODO describe the life cycle.
  * TODO add API for modification and conflict descriptions
  * 
  * @author Jean-Charles Roger 
@@ -70,13 +69,34 @@ import org.openflexo.hannah.Conflict.Resolution;
  */
 public class IterativeFileGenerator {
 
+	/**
+	 * Git repository folder name.
+	 */
 	private final static String GIT_REPOSITORY_FILENAME = ".git";
+
+	/**
+	 * Hannah repository folder name.
+	 */
 	private final static String HANNAH_REPOSITORY_FILENAME = ".hannah";
+	
+	/**
+	 * A dummy file name used to force the creation of the master branch.
+	 */
 	private final static String DUMMY_FILENAME = ".dummy";
 	
+	/**
+	 * The generation branch name.
+	 */
 	private final static String GENERATION = "generation";
+	
+	/**
+	 * The master branch name.
+	 */
 	private final static String MASTER = "master";
 	
+	/**
+	 * When cleaning the output folder before generating, this list of file name is ignored.
+	 */
 	private final List<String> NOT_DELETED_FILES = Arrays.asList(GIT_REPOSITORY_FILENAME, DUMMY_FILENAME);
 	
 	/** 
@@ -85,10 +105,19 @@ public class IterativeFileGenerator {
 	 */
 	private final File outputFolder;
 	
+	/**
+	 * <p>Hannah repository folder reference.</p>
+	 */
 	private final File hannahFolder;
 
+	/**
+	 * <p>Git repository folder reference.</p>
+	 */
 	private final File gitFolder;
 	
+	/**
+	 * The {@link Git} runtime used to manipulate the repository.
+	 */
 	private Git git;
 	
 	public IterativeFileGenerator(File outputFolder) {
