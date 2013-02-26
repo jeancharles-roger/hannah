@@ -15,9 +15,9 @@ Hannah is in early development state. Basics functionalities are present but it
 TODO
 ====
 
-* Add user modification description (maybe org.eclipse.jgit.diff.Edit is a good
+* Add user modification description (maybe `org.eclipse.jgit.diff.Edit` is a good
   choice).
-* Add conflict description (maybe org.eclipse.jgit.diff.Edit is a good choice).
+* Add conflict description (maybe `org.eclipse.jgit.diff.Edit` is a good choice).
 * Add support for inter-active conflict resolution.
 * Add tests for inter-active conflict resolution.
 * Tests the generator on a real generator and checks how it supports 
@@ -26,8 +26,15 @@ TODO
 Getting Started
 ===============
 
-The entry point of Hannah library is the class 'org.openflexo.hannah.
-IterativeFileGenerator'. It's use is described within the class JavaDoc.
+The entry point of Hannah library is the class 
+`org.openflexo.hannah.IterativeFileGenerator`. It's use is described within the 
+class JavaDoc.
+
+	IterativeFileGenerator generator = new IterativeFileGenerator(output);
+	generator.start(ModificationHandler.accept);
+	generator.generate("file1.txt", "abc\ndef\nghi\n");
+	generator.end(ConflictHandler.user);
+
 
 How does it work ?
 ==================
@@ -41,12 +48,17 @@ committed to 'generation' and the branch merged with-in the 'master' branch.
 FAQ
 ===
 
-* What is the '.hannah' folder ?
+* What is the `.hannah` folder ?
 
-The '.hannah' folder is the '.git' folder renamed after a generation cycle. Renaming the folder also to use a Hannah inside a Git working copy.
+The `.hannah` folder is the `.git` folder renamed after a generation cycle. 
+Renaming the folder also to use a Hannah inside a Git working copy.
 
 
 Licence
 =======
 
-Hannah is distributed under the GLPv3 licence.
+Hannah is distributed under the GLPv3 license.
+
+Hannis is a part of the OpenFlexo project.
+
+![OpenFlexo](http://openflexo.org/developers/wp-content/uploads/2011/09/openflexo-developers1.jpg)
