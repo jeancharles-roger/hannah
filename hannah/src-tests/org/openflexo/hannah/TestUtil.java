@@ -33,6 +33,7 @@ public class TestUtil {
 	
 	public static void assertContents(IterativeFileGenerator generator, String filename, String contents) throws IOException{
 		final File absoluteFile = new File(generator.getOutputFolder(), filename);
+		assertTrue("File '"+ filename +"' doesn't exist.", absoluteFile.exists());
 		boolean equals = FileUtil.checkContents(absoluteFile, contents, "UTF-8");
 		assertTrue("File '"+ filename +"' doesn't contains '"+ contents +"'.", equals);
 	}
