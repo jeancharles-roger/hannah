@@ -57,6 +57,7 @@ public class ConflictingFile {
 		
 		MergeChunk userChunk = null;
 		for (MergeChunk chunk : result) {
+			
 			switch ( chunk.getConflictState() ) {
 			case FIRST_CONFLICTING_RANGE:
 				userChunk = chunk;
@@ -65,9 +66,11 @@ public class ConflictingFile {
 			case NEXT_CONFLICTING_RANGE:
 				assert userChunk != null;
 
+				final String user = getChunkString(userChunk);
+				final String generation = getChunkString(chunk);
 				final Conflict conflict = new Conflict(
-						userChunk.getBegin(), userChunk.getEnd(), 
-						chunk.getBegin(), chunk.getEnd()
+						userChunk.getBegin(), userChunk.getEnd(), user,
+						chunk.getBegin(), chunk.getEnd(), generation
 					);
 				conflicts.add(conflict);
 				
@@ -131,6 +134,23 @@ public class ConflictingFile {
 	}
 
 	/**
+	 * <p>Constructs string from a {@link MergeChunk}.</p>
+	 * @param chunk chunk to construct.
+	 * @param text the referenced {@link RawText}. 
+	 * @return a String.
+	 */
+	private String getChunkString(MergeChunk chunk) {
+		final RawText text = result.getSequences().get(chunk.getSequenceIndex());
+
+		final StringBuilder string = new StringBuilder();
+		for (int i = chunk.getBegin(); i < chunk.getEnd(); i++) {
+			string.append(text.getString(i));
+			string.append("\n");
+		}
+		return string.toString();
+	}
+	
+	/**
 	 * <p>Returns the contents of the file using the resolution for each
 	 * {@link Conflict}.</p>
 	 */
@@ -138,17 +158,19 @@ public class ConflictingFile {
 		final StringBuilder text = new StringBuilder();
 		
 		for (final MergeChunk chunk : result) {
-			final RawText seq = result.getSequences().get(chunk.getSequenceIndex());
-			
 			// checks if it needs to be printed
 			if ( print(chunk) ) {
-				for (int i = chunk.getBegin(); i < chunk.getEnd(); i++) {
-					text.append(seq.getString(i));
-					text.append("\n");
-				}
+				text.append(getChunkString(chunk));
 			}
 		}
-
+		return text.toString();
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder text = new StringBuilder();
+		text.append(path);
+		text.append(conflicts);
 		return text.toString();
 	}
 	

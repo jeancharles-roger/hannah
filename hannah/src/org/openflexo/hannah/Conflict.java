@@ -48,18 +48,26 @@ public class Conflict {
 	/** The user ending line for conflict. */
 	private final int userEnd;
 	
+	/** User string. */
+	private final String user;
+	
 	/** The generation beginning line for conflict. */
 	private final int generationBegin;
 	
 	/** The generation ending line for conflict. */
 	private final int generationEnd;
 	
+	/** Generation string. */
+	private final String generation;
+
 	/* Protected constructor. */
-	protected Conflict(int userStart, int userEnd, int generationStart, int generationEnd) {
+	protected Conflict(int userStart, int userEnd, String user, int generationStart, int generationEnd, String generation) {
 		this.userBegin = userStart;
 		this.userEnd = userEnd;
+		this.user = user;
 		this.generationBegin = generationStart;
 		this.generationEnd = generationEnd;
+		this.generation = generation;
 	}
 
 	/** Gets {@link Resolution} for conflict. */
@@ -82,6 +90,11 @@ public class Conflict {
 		return userEnd;
 	}
 	
+	/** User string. */
+	public String getUser() {
+		return user;
+	}
+	
 	/** The generation beginning line for conflict. */
 	public int getGenerationBegin() {
 		return generationBegin;
@@ -90,6 +103,32 @@ public class Conflict {
 	/** The generation ending line for conflict. */
 	public int getGenerationEnd() {
 		return generationEnd;
+	}
+	
+	/** Generation string. */
+	public String getGeneration() {
+		return generation;
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder text = new StringBuilder();
+		text.append("Conflict(");
+		text.append(resolution);
+		text.append(")[");
+		text.append(userBegin);
+		text.append(",");
+		text.append(userEnd);
+		text.append(",");
+		text.append(user.replaceAll("\\n", "|"));
+		text.append("][");
+		text.append(generationBegin);
+		text.append(",");
+		text.append(generationEnd);
+		text.append(",");
+		text.append(generation.replaceAll("\\n", "|"));
+		text.append("]");
+		return text.toString();
 	}
 		
 }
