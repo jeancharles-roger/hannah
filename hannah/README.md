@@ -15,11 +15,7 @@ Hannah is in early development state. Basics functionalities are present but it
 TODO
 ====
 
-* Add user modification description (maybe `org.eclipse.jgit.diff.Edit` is a good
-  choice).
-* Add conflict description (maybe `org.eclipse.jgit.diff.Edit` is a good choice).
-* Add support for inter-active conflict resolution.
-* Add tests for inter-active conflict resolution.
+* Add user modification description.
 * Tests the generator on a real generator and checks how it supports 
   modifications on lots of versions.
 
