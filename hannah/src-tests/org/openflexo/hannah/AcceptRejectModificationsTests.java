@@ -22,7 +22,6 @@ import static org.openflexo.hannah.TestUtil.writeFile;
 import java.io.File;
 
 import org.junit.Test;
-import org.openflexo.hannah.Conflict.Resolution;
 
 public class AcceptRejectModificationsTests {
 
@@ -39,7 +38,7 @@ public class AcceptRejectModificationsTests {
 		IterativeFileGenerator generator = createGenerator("accept");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
-		generator.end(Resolution.USER);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc\ndef\nijk\n");
 		
@@ -48,7 +47,7 @@ public class AcceptRejectModificationsTests {
 		
 		generator.start(ModificationHandler.accept);
 		generator.generate("file1.txt", "abc\nfed\nijk\n");
-		generator.end(Resolution.USER);
+		generator.end(ConflictHandler.user);
 		
 		assertContents(generator, "file1.txt", "abc\nddd\nijk\n");
 	}
@@ -58,7 +57,7 @@ public class AcceptRejectModificationsTests {
 		IterativeFileGenerator generator = createGenerator("reject");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
-		generator.end(Resolution.USER);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc\ndef\nijk\n");
 		
@@ -67,7 +66,7 @@ public class AcceptRejectModificationsTests {
 		
 		generator.start(ModificationHandler.reject);
 		generator.generate("file1.txt", "abc\nfed\nijk\n");
-		generator.end(Resolution.USER);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc\nfed\nijk\n");
 	}

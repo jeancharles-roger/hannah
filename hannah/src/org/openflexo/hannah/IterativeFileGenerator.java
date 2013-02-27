@@ -21,24 +21,29 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.RmCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.RawText;
+import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.dircache.DirCache;
-import org.eclipse.jgit.dircache.DirCacheCheckout;
 import org.eclipse.jgit.dircache.DirCacheEntry;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.merge.MergeStrategy;
-import org.openflexo.hannah.Conflict.Resolution;
+import org.eclipse.jgit.merge.MergeAlgorithm;
+import org.eclipse.jgit.merge.MergeResult;
 
 /**
  * <p>The {@link IterativeFileGenerator} allows to generate files using 
@@ -54,15 +59,13 @@ import org.openflexo.hannah.Conflict.Resolution;
  * 
  * <p>It will look like this:
  * <pre><code>
- * IterativeFileGenerator generator = createGenerator("oneFile");
- * generator.start(TestUtil.noModification);
+ * IterativeFileGenerator generator = createGenerator("output");
+ * generator.start(ModificationHandler.accept);
  * generator.generate("file1.txt", "abc");
- * generator.generate("file2.txt", "abc");
- * generator.end(Resolution.USER);
+ * generator.generate("file2.txt", "def");
+ * generator.end(ConflictHandler.user);
  * </code></pre>
  * </p>
- * 
- * TODO add API for modification and conflict descriptions
  * 
  * @author Jean-Charles Roger 
  *
@@ -169,7 +172,7 @@ public class IterativeFileGenerator {
 			final String[] children = outputFolder.list();
 			if ( children == null || children.length <= 1 ) {
 				// if folder only contains '.git' creates a dummy file.
-				FileUtil.writeFile(new File(outputFolder, DUMMY_FILENAME), "For master branch creation", "UTF-8");
+				FileUtil.writeFile(new File(outputFolder, DUMMY_FILENAME), "For master branch creation\n", "UTF-8");
 			}
 
 			// creates the master branch
@@ -249,10 +252,10 @@ public class IterativeFileGenerator {
 	/**
 	 * <p>Ends the generation. It asks to resolve conflicts (if any). By 
 	 * default conflict are resolved using user modifications.</p>
-	 * @param resolution conflict resolution mode.
+	 * @param callback callback to handle conflicts
 	 * @throws IOException
 	 */
-	public void end(Resolution resolution) throws IOException, GitAPIException {
+	public void end(ConflictHandler callback) throws IOException, GitAPIException {
 		final Status status = git.status().call();
 
 		// checks if needs commit.
@@ -290,38 +293,66 @@ public class IterativeFileGenerator {
 		// merges generation branch with master (resolving conflict with USER).
 		final Repository repo = git.getRepository();
 		final Ref generationHead = repo.getRef(GENERATION);
-		final MergeResult merge = git.merge().include(generationHead).setStrategy(MergeStrategy.RESOLVE).call();
+		final MergeStatus mergeStatus = git.merge().include(generationHead).call().getMergeStatus();
 		
 		// in case of conflicts, uses the resolution mode to choose the outcome
-		if ( merge.getMergeStatus() == MergeStatus.CONFLICTING ) {
-			// prepares the reset command
-			final ResetCommand reset = git.reset();
+		if ( mergeStatus == MergeStatus.CONFLICTING ) {
+			// maps to stores confliting files
+			final Map<String, DirCacheEntry> baseEntry = new LinkedHashMap<String, DirCacheEntry>();
+			final Map<String, DirCacheEntry> userEntry = new LinkedHashMap<String, DirCacheEntry>();
+			final Map<String, DirCacheEntry> generationEntry = new LinkedHashMap<String, DirCacheEntry>();
 			
-			// for all conflicting entry in the cache, select the correct entry. 
-			final int selectedStage = resolution == Resolution.USER ? DirCacheEntry.STAGE_2 : DirCacheEntry.STAGE_3;
+			// for all conflicting entry collects base, user and generation entries. 
 			final DirCache cache = repo.lockDirCache();
 			for ( int i=0; i<cache.getEntryCount(); i++ ) {
 				final DirCacheEntry entry = cache.getEntry(i);
-				if ( entry.getStage() == selectedStage ) {
-					final String pathString = entry.getPathString();
-					
-					// if entry is the correct resolution (it's a conflict) checks it out. 
-					final File file = new File(repo.getWorkTree(), pathString);
-					DirCacheCheckout.checkoutEntry(repo, file, entry);
-					
-					// add path to reset command
-					reset.addPath(pathString);
-					
+				switch (entry.getStage()) {
+				case DirCacheEntry.STAGE_1:
+					baseEntry.put(entry.getPathString(), entry);
+					break;
+				case DirCacheEntry.STAGE_2:
+					userEntry.put(entry.getPathString(), entry);
+					break;
+				case DirCacheEntry.STAGE_3:
+					generationEntry.put(entry.getPathString(), entry);
+					break;
 				}
 			}
+
+			// creates list of conflicting files
+			final List<ConflictingFile> conflictingFiles = new ArrayList<ConflictingFile>();
+			final MergeAlgorithm mergeAlgorithm = new MergeAlgorithm();
+			for ( final String path : baseEntry.keySet() ) {
+				final RawText baseText = getRawText(baseEntry.get(path));
+				final RawText userText = getRawText(userEntry.get(path));
+				final RawText generationText = getRawText(generationEntry.get(path));
+				
+				final MergeResult<RawText> result = mergeAlgorithm.merge(RawTextComparator.DEFAULT, baseText, userText, generationText);
+				conflictingFiles.add(new ConflictingFile(path, result));
+				
+			}
+			// unlocks cache.
 			cache.unlock();
+			
+			// calls the callback
+			callback.conflicts(conflictingFiles);
+			
+			// prepares the reset command
+			final ResetCommand reset = git.reset();
+
+			// applies callback selections
+			for ( final ConflictingFile conflictingFile : conflictingFiles ) {
+				final File file = new File(repo.getWorkTree(), conflictingFile.getPath());
+				FileUtil.writeFile(file, conflictingFile.getContents(), "UTF-8");
+				
+				reset.addPath(conflictingFile.getPath());
+			}
 
 			// resets repository state to allows commit.
 			reset.call();
+
 			// commit resolutions
 			git.commit().setMessage("User/Generation merge conflicts resolutions.").call();
-			
-			
 		}	
 		
 		// renames git repository to hannah
@@ -337,6 +368,20 @@ public class IterativeFileGenerator {
 	}
 	
 	private Modification createModification(DiffEntry diff) {
-		return new Modification.Stub(diff);
+		return new Modification(diff);
 	}
+	
+	private RawText getRawText(DirCacheEntry entry) throws IOException {
+		return getRawText(entry.getObjectId());
+	}
+	
+	private RawText getRawText(ObjectId id) throws IOException {
+		if ( ObjectId.zeroId().equals(id) ) {
+			return RawText.EMPTY_TEXT;
+		}
+		final ObjectLoader loader = git.getRepository().open(id, Constants.OBJ_BLOB);
+		return new RawText(loader.getCachedBytes());
+	}
+	
+	
 }

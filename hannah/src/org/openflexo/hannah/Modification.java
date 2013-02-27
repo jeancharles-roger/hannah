@@ -18,37 +18,25 @@ package org.openflexo.hannah;
 
 import org.eclipse.jgit.diff.DiffEntry;
 
-public interface Modification {
+public class Modification {
 
-	boolean isAccept();
+	private boolean accept = true;
+	private final DiffEntry diff;
 	
-	void setAccept(boolean accept);
+	/* Protected constructor. */
+	protected Modification(DiffEntry diff) {
+		this.diff = diff;
+	}
 	
-	// TODO handle modification description
-	DiffEntry getDiff();
+	public boolean isAccept() {
+		return accept;
+	}
 	
-	public static class Stub implements Modification {
-		
-		private boolean accept = true;
-		private final DiffEntry diff;
-		
-		public Stub(DiffEntry diff) {
-			this.diff = diff;
-		}
-		
-		@Override
-		public boolean isAccept() {
-			return accept;
-		}
-		
-		@Override
-		public void setAccept(boolean accept) {
-			this.accept = accept;
-		}
-		
-		@Override
-		public DiffEntry getDiff() {
-			return diff;
-		}
+	public void setAccept(boolean accept) {
+		this.accept = accept;
+	}
+	
+	public DiffEntry getDiff() {
+		return diff;
 	}
 }

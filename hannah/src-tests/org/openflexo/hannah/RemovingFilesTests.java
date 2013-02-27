@@ -22,7 +22,6 @@ import static org.openflexo.hannah.TestUtil.assertDoesntExist;
 import java.io.File;
 
 import org.junit.Test;
-import org.openflexo.hannah.Conflict.Resolution;
 
 public class RemovingFilesTests {
 
@@ -42,7 +41,7 @@ public class RemovingFilesTests {
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc");
 		generator.generate("file2.txt", "abc");
-		generator.end(Resolution.USER);
+		generator.end(TestUtil.noConflict);
 
 		assertContents(generator, "file1.txt", "abc");
 		assertContents(generator, "file2.txt", "abc");
@@ -50,7 +49,7 @@ public class RemovingFilesTests {
 		// generation two
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "cba");
-		generator.end(Resolution.USER);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "cba");
 		assertDoesntExist(generator, "file2.txt");
@@ -65,7 +64,7 @@ public class RemovingFilesTests {
 		generator.generate("file1.txt", "abc");
 		generator.generate("file2.txt", "abc");
 		generator.generate("file3.txt", "abc");
-		generator.end(Resolution.USER);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "abc");
 		assertContents(generator, "file2.txt", "abc");
@@ -74,7 +73,7 @@ public class RemovingFilesTests {
 		// generation two
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "cba");
-		generator.end(Resolution.USER);
+		generator.end(TestUtil.noConflict);
 		
 		assertContents(generator, "file1.txt", "cba");
 		assertDoesntExist(generator, "file2.txt");

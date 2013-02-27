@@ -22,7 +22,6 @@ import static org.openflexo.hannah.TestUtil.writeFile;
 import java.io.File;
 
 import org.junit.Test;
-import org.openflexo.hannah.Conflict.Resolution;
 
 public class ConflictingTests {
 
@@ -39,7 +38,7 @@ public class ConflictingTests {
 		IterativeFileGenerator generator = createGenerator("oneFile1");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
-		generator.end(Resolution.USER);
+		generator.end(ConflictHandler.user);
 		
 		assertContents(generator, "file1.txt", "abc\ndef\nijk\n");
 		
@@ -48,7 +47,7 @@ public class ConflictingTests {
 		
 		generator.start(ModificationHandler.accept);
 		generator.generate("file1.txt", "abc\nfed\nijk\n");
-		generator.end(Resolution.USER);
+		generator.end(ConflictHandler.user);
 		
 		assertContents(generator, "file1.txt", "abc\nddd\nijk\n");
 	}
@@ -58,7 +57,7 @@ public class ConflictingTests {
 		IterativeFileGenerator generator = createGenerator("oneFile2");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\n");
-		generator.end(Resolution.GENERATION);
+		generator.end(ConflictHandler.generation);
 		
 		assertContents(generator, "file1.txt", "abc\ndef\nijk\n");
 		
@@ -67,7 +66,7 @@ public class ConflictingTests {
 		
 		generator.start(ModificationHandler.accept);
 		generator.generate("file1.txt", "abc\nfed\nijk\n");
-		generator.end(Resolution.GENERATION);
+		generator.end(ConflictHandler.generation);
 		
 		assertContents(generator, "file1.txt", "abc\nfed\nijk\n");
 	}
@@ -78,7 +77,7 @@ public class ConflictingTests {
 		IterativeFileGenerator generator = createGenerator("oneFile3");
 		generator.start(TestUtil.noModification);
 		generator.generate("file1.txt", "abc\ndef\nijk\nlmn\nopq\nrst\nuvw\n");
-		generator.end(Resolution.USER);
+		generator.end(ConflictHandler.user);
 		
 		assertContents(generator, "file1.txt", "abc\ndef\nijk\nlmn\nopq\nrst\nuvw\n");
 		
@@ -87,9 +86,28 @@ public class ConflictingTests {
 		
 		generator.start(ModificationHandler.accept);
 		generator.generate("file1.txt", "abc\ndef\nijk\nlmn\nopq\nrst\nuvw\nxyz\n");
-		generator.end(Resolution.USER);
+		generator.end(ConflictHandler.user);
 		
 		assertContents(generator, "file1.txt", "abc\nddd\nijk\nlmn\nooo\nrst\nuvw\nxyz\n");
+	}
+	
+	@Test
+	public void testOneFile4() throws Exception {
+		IterativeFileGenerator generator = createGenerator("oneFile4");
+		generator.start(TestUtil.noModification);
+		generator.generate("file1.txt", "abc\ndef\nijk\n");
+		generator.end(ConflictHandler.user);
+		
+		assertContents(generator, "file1.txt", "abc\ndef\nijk\n");
+		
+		writeFile(generator, "file1.txt", "abc\nijk\n");
+		assertContents(generator, "file1.txt", "abc\nijk\n");
+		
+		generator.start(ModificationHandler.accept);
+		generator.generate("file1.txt", "abc\nfed\nijk\n");
+		generator.end(ConflictHandler.user);
+		
+		assertContents(generator, "file1.txt", "abc\nijk\n");
 	}
 	
 	

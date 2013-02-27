@@ -64,15 +64,15 @@ public class TestUtil {
 	
 	public static final ConflictHandler conflicts = new ConflictHandler() {
 		@Override
-		public void conflicts(List<Conflict> conflicts) {
-			assertTrue("Conflicts should be detected.", conflicts.size() > 0);
+		public void conflicts(List<ConflictingFile> conflictingFiles) {
+			assertTrue("Conflicts should be detected.", conflictingFiles.size() > 0);
 		}
 	};
 	
 	public static final ConflictHandler noConflict = new ConflictHandler() {
 		@Override
-		public void conflicts(List<Conflict> conflicts) {
-			assertEquals("No conflict should exist.", 0, conflicts.size());
+		public void conflicts(List<ConflictingFile> conflictingFiles) {
+			assertEquals("No conflict should exist.", 0, conflictingFiles.size());
 		}
 	};
 	

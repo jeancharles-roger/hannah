@@ -16,16 +16,80 @@
  * ******************************************************************* */
 package org.openflexo.hannah;
 
-public interface Conflict {
 
+/**
+ * <p>A {@link Conflict} is a representation of a conflict inside a file. It 
+ * contains the description of one conflict between user code and generation
+ * code. It also contains the {@link Resolution} to apply to it.</p>
+ * 
+ * @author Jean-Charles Roger (jeancharles.roger@gmail.com)
+ *
+ */
+public class Conflict {
+
+	/**
+	 * <p>A {@link Resolution} enum allows to choose between solution to 
+	 * resolve a {@link Conflict}. It can be either User or Generation.</p>
+	 * 
+	 * @author Jean-Charles Roger (jeancharles.roger@gmail.com)
+	 *
+	 */
 	public enum Resolution {
 		USER,
 		GENERATION
 	}
 	
-	Resolution getResolution();
+	/** The {@link Conflict} resolution, User by default. */
+	private Resolution resolution = Resolution.USER;
 	
-	void setResolution(Resolution resolution);
+	/** The user beginning line for conflict. */
+	private final int userBegin;
 	
-	// TODO handles conflict description
+	/** The user ending line for conflict. */
+	private final int userEnd;
+	
+	/** The generation beginning line for conflict. */
+	private final int generationBegin;
+	
+	/** The generation ending line for conflict. */
+	private final int generationEnd;
+	
+	/* Protected constructor. */
+	protected Conflict(int userStart, int userEnd, int generationStart, int generationEnd) {
+		this.userBegin = userStart;
+		this.userEnd = userEnd;
+		this.generationBegin = generationStart;
+		this.generationEnd = generationEnd;
+	}
+
+	/** Gets {@link Resolution} for conflict. */
+	public Resolution getResolution() {
+		return resolution;
+	}
+
+	/** Sets {@link Resolution} for conflict. */
+	public void setResolution(Resolution resolution) {
+		this.resolution = resolution;
+	}
+
+	/** The user beginning line for conflict. */
+	public int getUserBegin() {
+		return userBegin;
+	}
+	
+	/** The user ending line for conflict. */
+	public int getUserEnd() {
+		return userEnd;
+	}
+	
+	/** The generation beginning line for conflict. */
+	public int getGenerationBegin() {
+		return generationBegin;
+	}
+	
+	/** The generation ending line for conflict. */
+	public int getGenerationEnd() {
+		return generationEnd;
+	}
+		
 }
