@@ -26,11 +26,12 @@ The entry point of Hannah library is the class
 `org.openflexo.hannah.IterativeFileGenerator`. It's use is described within the 
 class JavaDoc.
 
-	IterativeFileGenerator generator = new IterativeFileGenerator(output);
-	generator.start(ModificationHandler.accept);
-	generator.generate("file1.txt", "abc\ndef\nghi\n");
-	generator.end(ConflictHandler.user);
-
+```java
+IterativeFileGenerator generator = new IterativeFileGenerator(output);
+generator.start(ModificationHandler.accept);
+generator.generate("file1.txt", "abc\ndef\nghi\n");
+generator.end(ConflictHandler.user);
+```
 
 How does it work ?
 ==================
